@@ -6,6 +6,7 @@ You must explicitly allow it via a Quick Settings tile or the launcher button.
 - Open this folder in Android Studio (Giraffe+)
 - Let it sync. Then build and install `app` to your rooted device.
 - In LSPosed, enable **AA Guard** for package **com.google.android.projection.gearhead**. Reboot.
+- Allow superuser in Magisk - this is to allow setting of global props and force refreshing bluetooth and wifi for Android Auto connection
 
 ## Use
 - By default, AA will not autostart.
@@ -13,4 +14,4 @@ You must explicitly allow it via a Quick Settings tile or the launcher button.
 
 ## Notes
 - Tested minSdk 24+, targetSdk 34.
-- You can change the allow window in `AllowWindow.DURATION_MS`.
+- You can change the allow window in `AllowWindow.DURATION_MS`. Note: this is depreciated and does not work, the switch is a toggle, one press for Android auto ON, another to disable.
