@@ -10,8 +10,7 @@ You must explicitly allow it via a Quick Settings tile or the launcher button.
 
 ## Use
 - By default, AA will not autostart.
-- When you want to connect, tap the QS tile **Allow AA** (gives 2 minutes) or launch the app **Launch Android Auto**.
+- When you want to connect, tap the QS tile **Allow AA** or launch the app **Launch Android Auto**.
 
-## Notes
-- Tested minSdk 24+, targetSdk 34.
-- You can change the allow window in `AllowWindow.DURATION_MS`. Note: this is depreciated and does not work, the switch is a toggle, one press for Android auto ON, another to disable.
+## Notes:
+Use at your own risk.  Not responsible for bricks, the apocalypse, fried vehicles etc.  
