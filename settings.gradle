@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url 'https://api.xposed.info/' }
+}
+    plugins {
+        id("com.android.application") version "8.5.2"
+        id("org.jetbrains.kotlin.android") version "1.9.24"
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://api.xposed.info/' }
+    }
+}
+rootProject.name = "AA-Guard"
+include(":app")
