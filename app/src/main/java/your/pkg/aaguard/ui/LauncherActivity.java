@@ -1,47 +1,54 @@
 package your.pkg.aaguard.ui;
 
 import android.app.Activity;
-import android.content.ComponentName;
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
-import your.pkg.aaguard.AllowWindow;
+import your.pkg.aaguard.GuardController;
 
-public class LauncherActivity extends Activity {
+/** Requires explicit confirmation so another app cannot silently enable AA. */
+public final class LauncherActivity extends Activity {
     private static final String TAG = "AA-Guard-Launcher";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (GuardController.isAllowed(this)) {
+            openSettingsAndFinish();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Allow Android Auto?")
+                .setMessage("Android Auto will remain enabled until you block it from the Quick Settings tile or reboot.")
+                .setPositiveButton("Allow", (dialog, which) -> enable())
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> finish())
+                .setOnCancelListener(dialog -> finish())
+                .show();
+    }
 
-        // Set master allow ON (pure allow)
-        AllowWindow.setMasterAllowApp(getApplicationContext(), true);
-        try { Runtime.getRuntime().exec(new String[]{ "su","-c","/system/bin/setprop sys.aaguard.allow 1" }).waitFor(); } catch (Throwable ignored) {}
-        android.util.Log.d(TAG, "Set master_allow=true");
-
-        // If rooted, clear any stale AA state
-        try { android.util.Log.d(TAG, "force-stop gearhead"); Runtime.getRuntime().exec(new String[]{ "su", "-c", "/system/bin/am force-stop com.google.android.projection.gearhead" }); } catch (Throwable e) { android.util.Log.e(TAG, "force-stop failed", e);}
-
-        // Launch Android Auto - prefer launcher intent, fallback to HeadunitActivity
-        try {
-            PackageManager pm = getPackageManager();
-            Intent launch = pm.getLaunchIntentForPackage("com.google.android.projection.gearhead");
-            if (launch != null) {
-                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(launch);
-            android.util.Log.d(TAG, "launched AA via launcher intent");
+    private void enable() {
+        GuardController.setAllowed(this, true, true, (success, allowed, detail) -> {
+            if (success) {
+                openSettingsAndFinish();
             } else {
-                Intent intent = new Intent();
-                intent.setComponent(new ComponentName(
-                    "com.google.android.projection.gearhead",
-                    "com.google.android.projection.gearhead.HeadunitActivity"
-                ));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                android.util.Log.d(TAG, "launched AA via explicit component");
+                Log.e(TAG, detail);
+                Toast.makeText(this, "AA Guard failed: " + detail, Toast.LENGTH_LONG).show();
+                finish();
             }
-        } catch (Throwable ignored) {}
+        });
+    }
 
+    private void openSettingsAndFinish() {
+        try {
+            Intent intent = new Intent("com.google.android.projection.gearhead.SETTINGS")
+                    .setPackage(GuardController.ANDROID_AUTO_PACKAGE);
+            startActivity(intent);
+        } catch (Throwable e) {
+            Log.w(TAG, "Android Auto settings activity is unavailable", e);
+        }
         finish();
     }
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <queries>
         <package android:name="com.google.android.projection.gearhead" />
     </queries>
@@ -8,11 +10,12 @@
     <application
         android:label="AA Guard"
         android:icon="@drawable/bluetooth_drive_24"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
 
         <!-- LSPosed/Xposed module metadata -->
         <meta-data android:name="xposedmodule" android:value="true" />
-        <meta-data android:name="xposeddescription" android:value="Blocks Android Auto autostart; allow via QS tile or app." />
+        <meta-data android:name="xposeddescription" android:value="Blocks Android Auto until explicitly allowed from AA Guard." />
         <meta-data android:name="xposedminversion" android:value="93" />
 
         <!-- QS Tile -->
@@ -38,13 +41,15 @@
             </intent-filter>
         </activity>
 
-    
-        <provider
-            android:name=".ipc.StateProvider"
-            android:authorities="${applicationId}.state"
-            android:exported="true"
-            android:grantUriPermissions="false"
-            android:directBootAware="true" />
+        <receiver
+            android:name=".BootReceiver"
+            android:directBootAware="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     
     </application>
 </manifest>
